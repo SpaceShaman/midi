@@ -31,6 +31,7 @@ export default class MidiListener {
       .requestMIDIAccess()
       .then((midi) => {
         this.attachAllInputs(midi);
+        this.attachOnNewInputConnected(midi);
       })
       .catch((err) => {
         this.onError.emit(`Failed to access MIDI devices: ${err.message}`);
@@ -41,6 +42,15 @@ export default class MidiListener {
     for (const input of midi.inputs.values()) {
       this.attachInput(input);
     }
+  }
+
+  private attachOnNewInputConnected(midi: MIDIAccess) {
+    midi.onstatechange = (event) => {
+      const port = event.port;
+      if (!port || port.type !== "input" || port.state !== "connected") return;
+
+      this.attachInput(port as MIDIInput);
+    };
   }
 
   private attachInput(input: MIDIInput) {
