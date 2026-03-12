@@ -9,13 +9,13 @@ export default class MidiListener {
       for (const input of midi.inputs.values()) {
         input.onmidimessage = (msg) => {
           if (!msg.data) return;
-          const [status, note, velocity] = msg.data;
+          const [status, note] = msg.data;
 
-          if (status === 144 && velocity > 0) {
+          if (status === 144) {
             this.onKeyPressed.emit(midiNoteToName(note));
           }
 
-          if (status === 128 || velocity === 0) {
+          if (status === 128) {
             this.onKeyReleased.emit(midiNoteToName(note));
           }
         };
