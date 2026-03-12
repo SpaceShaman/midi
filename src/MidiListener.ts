@@ -1,7 +1,7 @@
 import EventEmitter from "./EventEmitter";
 
-const MIDI_NOTE_ON = 144;
-const MIDI_NOTE_OFF = 128;
+const MIDI_NOTE_ON = 0x90;
+const MIDI_NOTE_OFF = 0x80;
 const NOTE_NAMES = [
   "C",
   "C#",
@@ -34,15 +34,16 @@ export default class MidiListener {
           input.onmidimessage = (msg) => {
             if (!msg.data) return;
             const [status, note, velocity] = msg.data;
+            const command = status & 0xf0;
 
-            if (status === MIDI_NOTE_ON && velocity > 0) {
+            if (command === MIDI_NOTE_ON && velocity > 0) {
               this.onKeyPressed.emit(midiNoteToName(note));
               return;
             }
 
             if (
-              status === MIDI_NOTE_OFF ||
-              (status === MIDI_NOTE_ON && velocity === 0)
+              command === MIDI_NOTE_OFF ||
+              (command === MIDI_NOTE_ON && velocity === 0)
             ) {
               this.onKeyReleased.emit(midiNoteToName(note));
               return;
