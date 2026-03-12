@@ -24,23 +24,22 @@ export default class MidiListener {
   }
 }
 
-const NOTE_NAMES = [
-  "C",
-  "C#",
-  "D",
-  "D#",
-  "E",
-  "F",
-  "F#",
-  "G",
-  "G#",
-  "A",
-  "A#",
-  "B",
-];
-
 function midiNoteToName(note: number) {
-  const name = NOTE_NAMES[note % 12];
+  const noteNames = [
+    "C",
+    "C#",
+    "D",
+    "D#",
+    "E",
+    "F",
+    "F#",
+    "G",
+    "G#",
+    "A",
+    "A#",
+    "B",
+  ];
+  const name = noteNames[note % 12];
   const octave = Math.floor(note / 12) - 1;
   return `${name}${octave}`;
 }
