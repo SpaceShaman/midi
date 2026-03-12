@@ -30,30 +30,38 @@ export default class MidiListener {
     navigator
       .requestMIDIAccess()
       .then((midi) => {
-        for (const input of midi.inputs.values()) {
-          input.onmidimessage = (msg) => {
-            if (!msg.data) return;
-            const [status, note, velocity] = msg.data;
-            const command = status & 0xf0;
-
-            if (command === MIDI_NOTE_ON && velocity > 0) {
-              this.onKeyPressed.emit(midiNoteToName(note));
-              return;
-            }
-
-            if (
-              command === MIDI_NOTE_OFF ||
-              (command === MIDI_NOTE_ON && velocity === 0)
-            ) {
-              this.onKeyReleased.emit(midiNoteToName(note));
-              return;
-            }
-          };
-        }
+        this.attachAllInputs(midi);
       })
       .catch((err) => {
         this.onError.emit(`Failed to access MIDI devices: ${err.message}`);
       });
+  }
+
+  private attachAllInputs(midi: MIDIAccess) {
+    for (const input of midi.inputs.values()) {
+      this.attachInput(input);
+    }
+  }
+
+  private attachInput(input: MIDIInput) {
+    input.onmidimessage = (msg) => {
+      if (!msg.data) return;
+      const [status, note, velocity] = msg.data;
+      const command = status & 0xf0;
+
+      if (command === MIDI_NOTE_ON && velocity > 0) {
+        this.onKeyPressed.emit(midiNoteToName(note));
+        return;
+      }
+
+      if (
+        command === MIDI_NOTE_OFF ||
+        (command === MIDI_NOTE_ON && velocity === 0)
+      ) {
+        this.onKeyReleased.emit(midiNoteToName(note));
+        return;
+      }
+    };
   }
 }
 
